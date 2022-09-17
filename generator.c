@@ -15,6 +15,14 @@
  *  - the opposite direction to dir
  */
 Direction get_opposite_dir(Direction dir) {
+    if(dir == Direction.NORTH)
+        return Direction.SOUTH
+    else if(dir == Direction.SOUTH)
+        return Direction.NORTH
+    else if(dir == Direction.WEST)
+        return Direction.EAST
+    else if(dir == Direction.EAST)
+        return Direction.WEST
     // TODO: implement this function
 }
 
@@ -27,7 +35,15 @@ Direction get_opposite_dir(Direction dir) {
  * Returns:
  *  - nothing - the array should be shuffled in place
  */
+
+void swap(int* i, int* j){
+    int temp;
+    temp = *j; *j = *i; *i = temp;
+}
 void shuffle_array(Direction directions[]) {
+    for(int i = 0; i < sizeOf(directions); i++){
+        swap(&directions[i], &directions[i + (rand() % (4 - 1))])
+    }
     // TODO: implement this function
 }
 

@@ -18,6 +18,10 @@
  *  - 0 if room is not in the maze, 1 if room is in the maze
  */
 int is_in_range(int row, int col, int num_rows, int num_cols) {
+    if(row <= num_rows && col <= num_cols){
+        return 1;
+    }
+    return 0;
     // TODO: implement function
 }
 
@@ -38,6 +42,23 @@ int is_in_range(int row, int col, int num_rows, int num_cols) {
 struct maze_room *get_neighbor(int num_rows, int num_cols,
                                struct maze_room maze[num_rows][num_cols],
                                struct maze_room *room, Direction dir) {
+        
+        int currentRow = room->num_rows;
+        int currentCol = room->num_cols;
+        
+            if(dir == Direction.NORTH && is_in_range(currentRow, currentCol--, num_rows, num_cols)){
+                return &maze[currentRow][currentCol--]; 
+            }
+            else if(dir == Direction.SOUTH && is_in_range(currentRow, currentCol++, num_rows, num_cols)){
+                return &maze[currentRow][currentCol++]; 
+            }
+            else if(dir == Direction.EAST && is_in_range(currentRow++, currentCol, num_rows, num_cols)){
+                return &maze[currentRow++][currentCol]; 
+            }
+            else if(dir == Direction.WEST && is_in_range(currentRow--, currentCol, num_rows, num_cols)){
+                return &maze[currentRow--][currentCol]; 
+            }
+    
     // TODO: implement function
 }
 
@@ -55,6 +76,12 @@ struct maze_room *get_neighbor(int num_rows, int num_cols,
  */
 void initialize_maze(int num_rows, int num_cols,
            struct maze_room maze[num_rows][num_cols]) {
+            maze_room maze[num_rows][num_cols]; 
+            for (int r = 0; r < num_rows; r++){
+                for(int c = 0; c < num_cols; c++){
+                    maze[r][c] = maze_room(r, c, 2, NULL, [2,2,2,2]);
+                }
+            }
     // TODO: implement function
 }
 
