@@ -29,8 +29,48 @@
  *  - nothing. The connections should be saved in the maze_room struct
  *pointed to by the parameter (make sure to use pointers correctly!).
  */
+
+ void intSwap(int *i, int *j){
+    int temp;
+    temp = *j; *j = *i; *i = temp;
+}
+ // E W S N 
 void create_room_connections(struct maze_room *room, unsigned int hex) {
     // TODO: implement this function
+    //c = 12 
+    if((hex&1) == 1){
+        int val = 1; 
+        intSwap(&room->connections[3], &val);
+    }
+    else{
+        int val = 0; 
+        intSwap(&room->connections[3], &val);
+    }
+    
+    if((hex&2) == 2){
+        int val = 1; 
+        intSwap(&room->connections[2], &val);
+    }
+    else{
+        int val = 0; 
+        intSwap(&room->connections[2], &val);
+    }
+    if((hex&4) == 4){
+        int val = 1; 
+        intSwap(&room->connections[1], &val);
+    }
+    else{
+        int val = 0; 
+        intSwap(&room->connections[1], &val);
+    }
+    if((hex&8) == 8){
+        int val = 1; 
+        intSwap(&room->connections[0], &val); 
+    }
+    else{
+        int val = 0; 
+        intSwap(&room->connections[0], &val);
+    }
 }
 
 /*
@@ -57,16 +97,59 @@ void create_room_connections(struct maze_room *room, unsigned int hex) {
  *  - 1 if the current branch finds a valid solution, 0 if no branches are
  *valid.
  */
+
+/*
+ dfs(row, col):
+    if (row, col) are the coordinates of the goal
+        return true
+    mark the room at [row][col] as visited
+    for each direction dir:
+        set n as the neighbor in direction dir
+        if the connection in direction dir is open and n is unvisited:
+            if dfs(neighbor.row, neighbor.col) is true
+                return true
+    each direction has been explored but the goal was never reached 
+    return false 
+    */
 int dfs(int row, int col, int goal_row, int goal_col, int num_rows,
         int num_cols, struct maze_room maze[num_rows][num_cols], FILE *file) {
-    Direction directions[4] = { NORTH, SOUTH, EAST, WEST };
+        Direction directions[4] = {EAST, WEST, SOUTH, NORTH}; 
+        struct maze_room *t = &maze[row][col]; 
+        if(file != NULL){
+         fprintf(file, "%d, %d\n", maze[row][col].rows, maze[row][col].cols); 
+        }
+            if(row == goal_row && col == goal_col){
+                (&maze[row][col])->next = NULL; 
+                return 1; 
+            }
+        (&maze[row][col])->visited = 1; 
+         for(int i = 0; i < 4; i++){
+            Direction dir = directions[i];
+            struct maze_room *n = get_neighbor(num_rows, num_cols, maze, &maze[row][col], dir); 
+                if(n!= NULL){
+                    if(t->connections[i] == 0 && n->visited == 0){
+                        if(dfs(n->rows, n->cols, goal_row, goal_col, num_rows, num_cols, maze, file) == 1){
+                            (&maze[row][col])->next = n; 
+                            // fprintf(file, "%d, %d\n", n->rows, n->cols); 
+                            return 1; 
+                        }
+                        else{
+                            // fprintf(file, "%d, %d\n", n->rows, n->cols
+                        }
+                    }
+                }
+         }
+         //print_pruned_path(&maze[row][col], file); 
+        return 0; 
+
     // TODO: implement this function
+    //
 }
 
 /*
  * Decodes an encoded maze and stores the resulting maze room data in the
  * passed 'maze' variable.
- *
+ * print 
  * Parameters:
  *  - num_rows: number of rows in the maze
  *  - num_cols: number of columns in the maze
@@ -80,6 +163,11 @@ int dfs(int row, int col, int goal_row, int goal_col, int num_rows,
 void decode_maze(int num_rows, int num_cols,
                  struct maze_room maze[num_rows][num_cols],
                  int encoded_maze[num_rows][num_cols]) {
+            for(int r = 0; r < num_rows; r++){
+                for(int c = 0; c < num_cols; c++){
+                    create_room_connections(&maze[r][c], encoded_maze[r][c]); 
+                }
+            }
     // TODO: implement this function
 }
 
@@ -90,11 +178,17 @@ void decode_maze(int num_rows, int num_cols,
  * Parameters:
  *  - room: a pointer to the current maze room
  *  - file: the file where to print the path
+ //setting room->next onto 
  *
  * Returns:
  *  - 1 if an error occurs, 0 otherwise
  */
 int print_pruned_path(struct maze_room *room, FILE *file) {
+    if(room != NULL){
+        fprintf(file, "%d, %d\n", room->rows, room->cols); 
+        print_pruned_path(room->next, file); 
+    }
+    return 0; 
     // TODO: implement this function
 }
 
@@ -179,5 +273,19 @@ int main(int argc, char **argv) {
         goal_row = atoi(argv[7]);
         goal_col = atoi(argv[8]);
     }
+    int encode_maze[num_rows][num_cols]; 
+    read_encoded_maze_from_file(num_rows, num_cols, encode_maze, maze_file_name); 
+    struct maze_room finalMaze[num_rows][num_cols]; 
+    initialize_maze(num_rows, num_cols, finalMaze); 
+    decode_maze(num_rows, num_cols, finalMaze, encode_maze);
+    FILE *theFile = fopen(path_file_name, "w+"); 
+    #ifdef FULL
+        fprintf(theFile, "FULL\n"); 
+        dfs(start_row, start_col, goal_row, goal_col, num_rows, num_cols, finalMaze, theFile); 
+    #else  
+        dfs(start_row, start_col, goal_row, goal_col, num_rows, num_cols, finalMaze, NULL); 
+        fprintf(theFile, "PRUNED\n"); 
+        print_pruned_path(&finalMaze[start_row][start_col], theFile);
+    #endif 
     // TODO: implement this function
 }

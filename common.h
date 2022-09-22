@@ -20,16 +20,18 @@ typedef enum { NORTH = 0, SOUTH = 1, WEST = 2, EAST = 3 } Direction;
  *    four directions.
  */
 struct maze_room { 
-     int num_rows;
-     int num_cols; 
-     int visited; 
+     int rows;
+     int cols; 
+     int visited;  // unvisited = 0, visited = 1
     // TODO: Fill in the fields you need
     
     // NOTE: ignore this field until you start implementing the solver
     struct maze_room *next;
 
     // data structure that stores a wall or an opening or all four directions
-    int connections[]; 
+    // wall =  1
+    // opening = 0
+    int connections[4]; 
 };
 
 int is_in_range(int row, int col, int num_rows, int num_cols);

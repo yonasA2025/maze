@@ -9,6 +9,7 @@ GEN_OBJS = generator.c common.c
 
 SOL_HEADERS = common.h solver.h
 SOL_OBJS = solver.c common.c
+-DFULL = solver_full
 
 EXECS = $(GEN) $(SOL) $(SOL_FULL) 
 

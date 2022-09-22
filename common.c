@@ -18,8 +18,10 @@
  *  - 0 if room is not in the maze, 1 if room is in the maze
  */
 int is_in_range(int row, int col, int num_rows, int num_cols) {
-    if(row <= num_rows && col <= num_cols){
-        return 1;
+    if(row >= 0 && col >= 0){
+        if((row < num_rows) && (col < num_cols)){
+            return 1;
+        }
     }
     return 0;
     // TODO: implement function
@@ -43,22 +45,30 @@ struct maze_room *get_neighbor(int num_rows, int num_cols,
                                struct maze_room maze[num_rows][num_cols],
                                struct maze_room *room, Direction dir) {
         
-        int currentRow = room->num_rows;
-        int currentCol = room->num_cols;
-        
-            if(dir == Direction.NORTH && is_in_range(currentRow, currentCol--, num_rows, num_cols)){
-                return &maze[currentRow][currentCol--]; 
-            }
-            else if(dir == Direction.SOUTH && is_in_range(currentRow, currentCol++, num_rows, num_cols)){
-                return &maze[currentRow][currentCol++]; 
-            }
-            else if(dir == Direction.EAST && is_in_range(currentRow++, currentCol, num_rows, num_cols)){
-                return &maze[currentRow++][currentCol]; 
-            }
-            else if(dir == Direction.WEST && is_in_range(currentRow--, currentCol, num_rows, num_cols)){
-                return &maze[currentRow--][currentCol]; 
-            }
-    
+        int currentRow = room->rows;
+        int currentCol = room->cols;
+
+        if(dir == NORTH){
+            currentRow = currentRow - 1;
+        }
+        else if(dir == SOUTH){
+            currentRow =  currentRow + 1;
+        }
+        else if(dir == WEST){
+            currentCol = currentCol - 1;
+
+        }
+        else if(dir == EAST){
+            currentCol = currentCol + 1; 
+        }
+
+        if(is_in_range(currentRow, currentCol, num_rows, num_cols)){
+               return &maze[currentRow][currentCol]; 
+        }
+        else{
+                return NULL; 
+        }
+
     // TODO: implement function
 }
 
@@ -71,15 +81,20 @@ struct maze_room *get_neighbor(int num_rows, int num_cols,
  *  - maze: a 2D array of uninitialized maze_rooms (to be initialized in
  *     this function)
  *
- * Returns:
+ * Returns: 
  *  - nothing (the initialized maze will be stored in the 'maze' array)
  */
 void initialize_maze(int num_rows, int num_cols,
            struct maze_room maze[num_rows][num_cols]) {
-            maze_room maze[num_rows][num_cols]; 
             for (int r = 0; r < num_rows; r++){
                 for(int c = 0; c < num_cols; c++){
-                    maze[r][c] = maze_room(r, c, 2, NULL, [2,2,2,2]);
+                     maze[r][c].rows = r;
+                     maze[r][c].cols = c;
+                     maze[r][c].visited = 0;
+                     maze[r][c].next = NULL;
+                        for(int index = 0; index < 4; index++){
+                                maze[r][c].connections[index] = 2;
+                        }
                 }
             }
     // TODO: implement function

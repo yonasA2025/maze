@@ -2,9 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-
 #include "generator.h"
-
 /*
  * Given a direction, get its opposite
  *
@@ -15,14 +13,22 @@
  *  - the opposite direction to dir
  */
 Direction get_opposite_dir(Direction dir) {
-    if(dir == Direction.NORTH)
-        return Direction.SOUTH
-    else if(dir == Direction.SOUTH)
-        return Direction.NORTH
-    else if(dir == Direction.WEST)
-        return Direction.EAST
-    else if(dir == Direction.EAST)
-        return Direction.WEST
+    if(dir == NORTH){
+        return SOUTH;
+    }
+    else if(dir == SOUTH){
+        return NORTH;
+    }
+    else if(dir == WEST){
+        return EAST;
+    }
+    else if(dir == EAST){
+        return WEST;
+    }
+    else{
+        fprintf(stderr, "ERROR\n");
+        assert(0);
+    }
     // TODO: implement this function
 }
 
@@ -36,13 +42,19 @@ Direction get_opposite_dir(Direction dir) {
  *  - nothing - the array should be shuffled in place
  */
 
-void swap(int* i, int* j){
-    int temp;
+void swap(Direction *i, Direction *j){
+    Direction temp;
     temp = *j; *j = *i; *i = temp;
 }
 void shuffle_array(Direction directions[]) {
-    for(int i = 0; i < sizeOf(directions); i++){
-        swap(&directions[i], &directions[i + (rand() % (4 - 1))])
+
+    for(int i = 0; i < 4; i++){
+        int r = (i + (rand() % (4 - i)));
+        Direction temp; 
+        temp = directions[r]; 
+        directions[r] = directions[i];
+        directions[i] =  temp;
+        //swap(&directions[i], &directions[r]);
     }
     // TODO: implement this function
 }
@@ -61,10 +73,91 @@ void shuffle_array(Direction directions[]) {
  *  - nothing - the state of your maze should be saved in the maze array
  *being passed in (make sure to use pointers correctly!).
  */
+
+
+
+ /*
+ drunken_walk(row, col):
+    set r as the room at (row, col) 
+    mark r as visited
+    for each direction dir in random order:
+ set n as the neighbor in direction dir
+ if n is out of bounds:
+store a wall in r at direction dir
+        else:
+            if n has not yet been visited:
+                store an opening in r at direction dir
+                perform drunken walk on n
+            else: 
+                if n has a wall or opening in the direction opposite of dir:
+                    store that value in r at direction dir
+                else:
+                    store a wall in r at direction dir
+
+ */
+
+int check_range(int row, int col, int num_rows, int num_cols, Direction dir) {
+        if(dir == NORTH){
+            row--;
+        }
+        else if(dir == SOUTH){
+            row++;
+        }
+        else if(dir == WEST){
+            col--;
+
+        }
+        else if(dir == EAST){
+            col++; 
+        }
+
+    if(row >= 0 && col >= 0){
+        if((row < num_rows) && (col < num_cols)){
+            return 1;
+        }
+    }
+    return 0;
+    // TODO: implement function
+}
+
+ void intSwap(int *i, int *j){
+    int temp;
+    temp = *j; *j = *i; *i = temp;
+}
+
+
 void drunken_walk(int row, int col, int num_rows, int num_cols,
                   struct maze_room maze[num_rows][num_cols]) {
+            struct maze_room *r = &maze[row][col];
+            r->visited = 1;
+            Direction directions[4] = {NORTH, SOUTH, WEST, EAST}; 
+            shuffle_array(directions); 
+            for(int i = 0; i < 4; i++){
+                Direction dir = directions[i]; // r.connection[i] = dir
+                struct maze_room *n = get_neighbor(num_rows, num_cols, maze, r, dir); 
+                if(check_range(r->rows, r->cols, num_rows, num_cols, dir) == 0){
+                    r->connections[dir] = 1;
+                }
+                    else
+                    {
+                        if(n->visited == 0){
+                        r->connections[dir] = 0; 
+                        drunken_walk(n->rows, n->cols, num_rows, num_cols, maze);
+                        }
+                        else{
+                            if(n->connections[get_opposite_dir(dir)] == 0 || n->connections[get_opposite_dir(dir)] == 1){
+                            r->connections[dir] = n->connections[get_opposite_dir(dir)]; 
+                            }
+                            else{
+                            r->connections[dir] = 1;
+                            }
+                        }
+                    }
+            }
     // TODO: implement this function
 }
+
+//Helper method required to get the array from most important to least? 
 
 /*
  * Represents a maze_room struct as an integer based on its connections
@@ -75,8 +168,43 @@ void drunken_walk(int row, int col, int num_rows, int num_cols,
  * Returns:
  *  - the integer representation of a room
  */
+
+ void shift_room(int directions[]){
+    // North South West East -> East West South North
+    // 1010
+
+    for(int i = 0; i < 2; i++){
+        int temp;
+        int dir = 3 - i; 
+        temp = directions[dir];
+        directions[dir] = directions[i]; 
+        directions[i] = temp; 
+    }
+ }
+
 int encode_room(struct maze_room room) {
     // TODO: implement this function
+         int sum = 0;
+        // Direction directions[4] = {NORTH, SOUTH, WEST, EAST}; 
+         shift_room(room.connections); 
+    for(int i = 3; i >= 0; i--){
+        if(room.connections[i] == 1){
+           if(i == 0){
+                sum += 8;
+           }
+           if(i == 1){
+                sum += 4;
+           }
+           if(i == 2){
+                sum += 2;
+           }
+           if(i == 3){
+                sum += 1;
+           }
+        }
+    }
+    return sum; 
+ 
 }
 
 /*
@@ -95,6 +223,12 @@ int encode_room(struct maze_room room) {
 void encode_maze(int num_rows, int num_cols,
                  struct maze_room maze[num_rows][num_cols],
                  int result[num_rows][num_cols]) {
+                    for(int r = 0; r < num_rows; r++){
+                        for(int c = 0; c < num_cols; c++){
+                            result[r][c] = encode_room(maze[r][c]); 
+                        }
+                    }
+            
     // TODO: implement this function
 }
 
@@ -177,5 +311,11 @@ int main(int argc, char **argv) {
         num_rows = atoi(argv[2]);
         num_cols = atoi(argv[3]);
     }
+    struct maze_room currentMaze[num_rows][num_cols];
+    initialize_maze(num_rows, num_cols, currentMaze); 
+    drunken_walk(0, 0, num_rows, num_cols, currentMaze); 
+    int resultMaze [num_rows][num_cols];
+    encode_maze(num_rows, num_cols, currentMaze, resultMaze);
+    write_encoded_maze_to_file(num_rows, num_cols, resultMaze, file_name);  
     // TODO: implement this function
 }
