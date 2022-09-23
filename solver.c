@@ -277,11 +277,11 @@ int main(int argc, char **argv) {
         fprintf(stderr, "invalid row or column arguments");
         return 1;
     }
-    if(start_col <= 0 || start_row <= 0){
+    if(start_col < 0 || start_row < 0){
         fprintf(stderr, "invalid row or column arguments"); 
         return 1;
     }
-    if(goal_row <= 0 || goal_col <= 0){
+    if(goal_row < 0 || goal_col < 0){
           fprintf(stderr, "invalid row or column arguments");
         return 1;
     }
