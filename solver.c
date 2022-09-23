@@ -275,12 +275,15 @@ int main(int argc, char **argv) {
     }
     if(num_rows <= 0 || num_cols <= 0){
         fprintf(stderr, "invalid row or column arguments");
+        return 1;
     }
     if(start_col <= 0 || start_row <= 0){
         fprintf(stderr, "invalid row or column arguments"); 
+        return 1;
     }
     if(goal_row <= 0 || goal_col <= 0){
           fprintf(stderr, "invalid row or column arguments");
+        return 1;
     }
     int encode_maze[num_rows][num_cols]; 
     read_encoded_maze_from_file(num_rows, num_cols, encode_maze, maze_file_name); 
