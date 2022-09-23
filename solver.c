@@ -134,8 +134,10 @@ int dfs(int row, int col, int goal_row, int goal_col, int num_rows,
                             return 1; 
                         }
                         else{
-                             fprintf(file, "%d, %d\n", maze[row][col].rows, maze[row][col].cols);
-                        }
+                              #ifdef FULL
+                              fprintf(file, "%d, %d\n", maze[row][col].rows, maze[row][col].cols);
+                              #endif
+                            }
                     }
                 }
          }
