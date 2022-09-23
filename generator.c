@@ -125,7 +125,6 @@ int check_range(int row, int col, int num_rows, int num_cols, Direction dir) {
     temp = *j; *j = *i; *i = temp;
 }
 
-
 void drunken_walk(int row, int col, int num_rows, int num_cols,
                   struct maze_room maze[num_rows][num_cols]) {
             struct maze_room *r = &maze[row][col];
