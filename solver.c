@@ -273,6 +273,15 @@ int main(int argc, char **argv) {
         goal_row = atoi(argv[7]);
         goal_col = atoi(argv[8]);
     }
+    if(num_rows < 0 || num_cols < 0){
+        fprintf(stderr, "invalid row or column arguments");
+    }
+    if(start_col < 0 || start_row < 0){
+        fprintf(stderr, "invalid row or column arguments"); 
+    }
+    if(goal_row < 0 || goal_col < 0){
+          fprintf(stderr, "invalid row or column arguments");
+    }
     int encode_maze[num_rows][num_cols]; 
     read_encoded_maze_from_file(num_rows, num_cols, encode_maze, maze_file_name); 
     struct maze_room finalMaze[num_rows][num_cols]; 
