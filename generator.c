@@ -311,6 +311,9 @@ int main(int argc, char **argv) {
         num_rows = atoi(argv[2]);
         num_cols = atoi(argv[3]);
     }
+    if(num_rows <= 0 || num_cols <= 0){
+        fprintf(stderr, "invalid row or column arguments");
+    }
     struct maze_room currentMaze[num_rows][num_cols];
     initialize_maze(num_rows, num_cols, currentMaze); 
     drunken_walk(0, 0, num_rows, num_cols, currentMaze); 
